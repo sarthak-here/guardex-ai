@@ -1,0 +1,124 @@
+site_name: GuardEx Documentation
+site_description: "AI guardrails for any LLM framework — content classification + PII detection with zero framework dependencies"
+site_url: https://atliq.github.io/guardex/
+repo_url: https://github.com/atliq/guardex-ai
+
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  features:
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - navigation.instant
+    - navigation.tracking
+    - search.highlight
+    - search.suggest
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
+
+# Social links and copyright
+extra:
+  social:
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/guardex-ai/
+      name: GuardEx on PyPI
+  generator: false
+
+copyright: Copyright &copy; 2026 GuardEx
+
+extra_css:
+  - stylesheets/extra.css
+
+not_in_nav: |
+  # intentionally empty
+
+plugins:
+  - search:
+      separator: '[\s\-\.]+'
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets
+  - pymdownx.mark
+  - pymdownx.keys
+  - tables
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: guides/installation.md
+      - Quick Start: guides/quickstart.md
+  - User Guide:
+      - Overview: guides/index.md
+      - Integration Patterns: guides/integration-patterns.md
+      - Error Handling: guides/error-handling.md
+      - Configuration: guides/configuration.md
+      - Safety Categories: guides/safety-categories.md
+      - PII Detection: guides/pii-detection.md
+      - PII Vault: guides/pii-vault.md
+      - Injection Detection: guides/injection-detection.md
+      - Context-Aware Policy: guides/context-aware-policy.md
+      - Multi-Turn Conversations: guides/multi-turn.md
+      - Observability: guides/observability.md
+      - Testing & CI/CD: guides/testing.md
+      - Recipes & Examples: guides/examples.md
+      - Choosing Your Setup: guides/migration.md
+      - Troubleshooting: guides/troubleshooting.md
+  - SDK Reference:
+      - Overview: sdk/index.md
+      - Guard: sdk/guard.md
+      - GuardExClient: sdk/client.md
+      - Streaming: sdk/streaming.md
+      - GuardExPolicy: sdk/policy.md
+      - PIIVault: sdk/pii-vault.md
+      - InjectionDetector: sdk/injection.md
+      - ConversationGuard: sdk/conversation-guard.md
+      - Types & Constants: sdk/types.md
+      - LangChain — GuardedLLM: sdk/guardedllm.md
+      - LangChain — CallbackHandler: sdk/callback-handler.md
+  - Deployment:
+      - Docker: deployment/docker.md
+  - Interactive Notebooks:
+      - Overview: notebooks/README.md

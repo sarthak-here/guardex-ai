@@ -1,0 +1,122 @@
+# ── Secrets & Environment ─────────────────────────────────────
+.env
+.env.*
+!.env.example
+# Defense-in-depth: match .env files in any subdirectory as well.
+**/.env
+**/.env.*
+
+# ── Python ────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.whl
+site/
+.mypy_cache/
+
+# ── Virtual Environments ─────────────────────────────────────
+.venv/
+venv/
+env/
+
+# ── Testing ───────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+*.cover
+tmp_pytest_base/
+
+# ── ML Models & Large Binaries ────────────────────────────────
+# Downloaded at runtime from HuggingFace Hub — not stored in git
+*.onnx
+*.safetensors
+*.bin
+*.pt
+*.pth
+
+# ── Private Server (not part of OSS release) ─────────────────
+guardex-server/
+
+# ── Runtime Artifacts & Logs ──────────────────────────────────
+*.log
+safety_audit.jsonl
+server_log.txt
+benchmark_results.json
+
+# ── IDE & Editor ──────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS Metadata ───────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Jupyter ───────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── Claude Code & AI tooling ─────────────────────────────────
+.claude*/
+.claude-plugin/
+
+# ── Internal Planning & Research (not for public repo) ────────
+builddocs/
+demos/
+examples/
+docs/notebooks/demo_*.py
+MEMORY/
+Plans/
+internal-docs/
+docs/superpowers/
+autoresearch/
+check/
+/guides/
+wandb/
+beta_chat/
+
+# ── Internal Architecture & Strategy Docs ─────────────────────
+WHITEPAPER.md
+ARCHITECTURE*
+CASCADE_ARCHITECTURE.md
+EXECUTION_PLAN*.md
+ROADMAP*
+GUARDEX_SDK_*
+GUARDEX_ARCHITECTURE_B*
+DEPLOYMENT_*
+DEVELOPER_PORTAL*
+AUTORESEARCH_*
+SEMANTIC_CACHE*
+PRD_GUARDEX_*
+CHANGELOG_v2.1*
+RESEARCH_REPORT*
+PII_ARCH*
+changes_from*
+GUIDE.md
+KNOGEN_INTEGRATION_REPORT*.md
+TASKS.md
+CLAUDE.md
+PLACEHOLDERS_TO_FILL.md
+AUDIT_FINDINGS.md
+RELEASE_NOTES_INTERNAL.md
+.mcp.json
+
+# ── Misc Build & Test Artifacts ───────────────────────────────
+*.docx
+*.db
+*.xlsx
+test.ipynb
+demo-banking*
+pii_evaluation_results*
+requirements.txt
+!binder/requirements.txt
+# Added by code-review-graph
+.code-review-graph/
+dist*

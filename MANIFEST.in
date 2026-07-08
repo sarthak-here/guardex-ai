@@ -1,0 +1,38 @@
+include LICENSE
+include README.md
+include CHANGELOG.md
+include CONTRIBUTING.md
+include SECURITY.md
+include guardex.yaml.example
+include pyproject.toml
+recursive-include guardex *.py py.typed
+recursive-include guardex/dashboard_assets *.html *.css *.js
+
+# Defense-in-depth excludes: these directories should never end up in the
+# sdist/wheel, even if someone accidentally adds them to the package tree.
+recursive-exclude guardex-server *
+prune builddocs
+recursive-exclude tests *
+recursive-exclude docs *
+recursive-exclude demos *
+recursive-exclude examples *
+recursive-exclude MEMORY *
+recursive-exclude Plans *
+recursive-exclude internal-docs *
+recursive-exclude beta_chat *
+exclude TASKS.md
+exclude CLAUDE.md
+exclude KNOGEN_INTEGRATION_REPORT.md
+exclude KNOGEN_INTEGRATION_REPORT_V2.md
+exclude PLACEHOLDERS_TO_FILL.md
+exclude AUDIT_FINDINGS.md
+exclude .mcp.json
+exclude .env
+
+# Standard build hygiene
+recursive-exclude * __pycache__
+recursive-exclude * *.py[cod]
+recursive-exclude * .env
+recursive-exclude * .env.*
+recursive-exclude * .DS_Store
+recursive-exclude * Thumbs.db

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GuardEx Telemetry</title>
+<script
+  src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"
+  integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g"
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"></script>
+<!-- Google Fonts stylesheets rotate content; SRI is omitted by design.
+     If you need full supply-chain isolation, replace this with a locally
+     bundled copy of the Inter font and a static CSS file. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-shield">🛡️</div>
+      <div>
+        <div class="logo-text">GuardEx</div>
+        <div class="logo-sub">TELEMETRY</div>
+      </div>
+    </div>
+    <div class="live-pill" id="live-pill"><span class="live-dot"></span><span id="live-label">Live</span></div>
+  </div>
+  <div class="nav-section">Observability</div>
+  <div class="nav-item active" onclick="showView('traces',this)"><span class="nav-icon">⚡</span> Traces</div>
+  <div class="nav-item" onclick="showView('analytics',this)"><span class="nav-icon">📊</span> Analytics</div>
+  <div class="nav-item" onclick="showView('security',this)"><span class="nav-icon">🛡️</span> Security <span class="nav-badge" id="block-badge">0</span></div>
+  <div class="nav-item" onclick="showView('pii',this)"><span class="nav-icon">🔍</span> PII Events</div>
+  <div class="nav-section">System</div>
+  <div class="nav-item" onclick="showView('settings',this)"><span class="nav-icon">⚙️</span> Settings</div>
+  <div class="sidebar-footer">service: guardex · OTel <span id="footer-otel">—</span></div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="view-title">Traces</div>
+      <div class="topbar-sub" id="view-sub">Real-time GuardEx screening events · auto-refresh 2s</div>
+    </div>
+    <div class="filter-row" id="trace-filters">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('pass',this)">Pass</button>
+      <button class="filter-btn" onclick="setFilter('block',this)">Block</button>
+      <button class="filter-btn" onclick="setFilter('mask',this)">Mask (PII)</button>
+      <button class="filter-btn" onclick="setFilter('input',this)">Input gate</button>
+      <button class="filter-btn" onclick="setFilter('output',this)">Output gate</button>
+    </div>
+  </div>
+
+  <!-- TRACES VIEW -->
+  <div class="view active" id="view-traces">
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">Total Screens</div><div class="stat-value c-blue" id="s-total">—</div><div class="stat-sub">all time</div></div>
+      <div class="stat-card"><div class="stat-label">Passed</div><div class="stat-value c-pass" id="s-pass">—</div><div class="stat-sub" id="s-pass-pct">—</div></div>
+      <div class="stat-card"><div class="stat-label">Blocked</div><div class="stat-value c-block" id="s-block">—</div><div class="stat-sub" id="s-block-rate">—% block rate</div></div>
+      <div class="stat-card"><div class="stat-label">Masked (PII)</div><div class="stat-value c-mask" id="s-mask">—</div><div class="stat-sub" id="s-pii-rate">—% PII rate</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Latency</div><div class="stat-value c-blue" id="s-lat">—</div><div class="stat-sub">ms</div></div>
+      <div class="stat-card"><div class="stat-label">P95 Latency</div><div class="stat-value c-blue" id="s-p95">—</div><div class="stat-sub">ms</div></div>
+    </div>
+    <div class="table-card">
+      <div class="table-header">
+        <span>Time</span><span>Gate</span><span>Action</span><span>Category</span><span>Latency</span><span>PII</span><span>Trace ID</span>
+      </div>
+      <div id="trace-list"><div class="empty-state">Waiting for traces…</div></div>
+    </div>
+  </div>
+
+  <!-- ANALYTICS VIEW -->
+  <div class="view" id="view-analytics">
+    <div class="section-title">Analytics</div>
+    <div class="section-sub">Aggregated metrics across all screening events</div>
+    <div class="charts-row">
+      <div class="chart-card"><div class="chart-title">Action Breakdown</div><div class="chart-wrap"><canvas id="chart-donut"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">Latency Timeline (last 30)</div><div class="chart-wrap"><canvas id="chart-lat"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title">Threat Categories</div><div class="chart-wrap"><canvas id="chart-cats"></canvas></div></div>
+    </div>
+    <div class="two-col">
+      <div class="info-card">
+        <h3>Gate Distribution</h3>
+        <div class="chart-wrap" style="height:130px"><canvas id="chart-gate"></canvas></div>
+      </div>
+      <div class="info-card">
+        <h3>Summary Stats</h3>
+        <div class="kv-row"><span class="kv-key">Total screens</span><span class="kv-val" id="a-total">—</span></div>
+        <div class="kv-row"><span class="kv-key">Block rate</span><span class="kv-val c-block" id="a-brate">—</span></div>
+        <div class="kv-row"><span class="kv-key">PII detection rate</span><span class="kv-val c-mask" id="a-prate">—</span></div>
+        <div class="kv-row"><span class="kv-key">Avg server latency</span><span class="kv-val c-blue" id="a-lat">—</span></div>
+        <div class="kv-row"><span class="kv-key">P95 latency</span><span class="kv-val c-blue" id="a-p95">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECURITY VIEW -->
+  <div class="view" id="view-security">
+    <div class="section-title">Security Events</div>
+    <div class="section-sub">All blocked screening calls - threats intercepted by GuardEx</div>
+    <div class="highlight-block" id="sec-summary">Loading security summary…</div>
+    <div class="info-card" style="margin-bottom:16px">
+      <h3>Threat Category Breakdown</h3>
+      <div id="sec-cat-list"></div>
+    </div>
+    <div class="table-card">
+      <div class="table-header" style="grid-template-columns:130px 160px 85px 1fr">
+        <span>Time</span><span>Category</span><span>Confidence</span><span>Trace ID</span>
+      </div>
+      <div id="sec-list"><div class="empty-state">No security events yet.</div></div>
+    </div>
+  </div>
+
+  <!-- PII VIEW -->
+  <div class="view" id="view-pii">
+    <div class="section-title">PII Events</div>
+    <div class="section-sub">All screening calls where PII was detected and masked</div>
+    <div class="highlight-block" id="pii-summary">Loading PII summary…</div>
+    <div class="table-card">
+      <div class="table-header" style="grid-template-columns:130px 80px 100px 1fr">
+        <span>Time</span><span>Gate</span><span>Entities</span><span>Trace ID</span>
+      </div>
+      <div id="pii-list"><div class="empty-state">No PII events yet.</div></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS VIEW -->
+  <div class="view" id="view-settings">
+    <div class="section-title">Settings</div>
+    <div class="section-sub">Dashboard and OTel configuration</div>
+    <div class="two-col">
+      <div class="info-card">
+        <h3>OTel Configuration</h3>
+        <div class="kv-row"><span class="kv-key">Exporter</span><span class="kv-val">In-process (custom)</span></div>
+        <div class="kv-row"><span class="kv-key">SDK version</span><span class="kv-val" id="cfg-otel-version">opentelemetry</span></div>
+        <div class="kv-row"><span class="kv-key">Service name</span><span class="kv-val">guardex</span></div>
+        <div class="kv-row"><span class="kv-key">Tracer</span><span class="kv-val">guardex</span></div>
+        <div class="kv-row"><span class="kv-key">Span processor</span><span class="kv-val">SimpleSpanProcessor</span></div>
+      </div>
+      <div class="info-card">
+        <h3>Dashboard</h3>
+        <div class="kv-row"><span class="kv-key">Refresh interval</span><span class="kv-val">2 seconds</span></div>
+        <div class="kv-row"><span class="kv-key">Max traces shown</span><span class="kv-val">200</span></div>
+        <div class="kv-row"><span class="kv-key">Port</span><span class="kv-val" id="cfg-port">7865</span></div>
+        <div class="kv-row"><span class="kv-key">API</span><span class="kv-val">/api/traces · /api/stats</span></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <h3>Connect to a real backend (production)</h3>
+      <div class="highlight-block" style="margin-top:8px">
+        Replace the <strong>_InProcessExporter</strong> in <code>guardex.dashboard</code> (run via <code>guardex-dashboard</code> or <code>python -m guardex.dashboard</code>) with <strong>OTLPSpanExporter</strong> pointing to your Jaeger, Grafana Tempo, Datadog, or Azure Monitor endpoint. GuardEx spans carry all <code>guardex.*</code> attributes automatically - no code changes needed in your app.
+      </div>
+      <div class="kv-row"><span class="kv-key">Jaeger (local)</span><span class="kv-val mono">http://localhost:4317</span></div>
+      <div class="kv-row"><span class="kv-key">Datadog</span><span class="kv-val mono">https://trace.agent.datadoghq.com</span></div>
+      <div class="kv-row"><span class="kv-key">Azure Monitor</span><span class="kv-val mono">AzureMonitorTraceExporter</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Detail panel -->
+<div class="overlay" id="overlay" onclick="closeDetail()"></div>
+<div class="detail-panel" id="detail-panel">
+  <div class="detail-header">
+    <div class="detail-title" id="detail-title">Span Detail</div>
+    <button class="close-btn" onclick="closeDetail()">&#x2715;</button>
+  </div>
+  <div id="detail-body"></div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

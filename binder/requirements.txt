@@ -1,0 +1,6 @@
+# GuardEx interactive notebooks — Binder environment.
+# Binder pre-provisions this on launch; the notebooks also %pip install
+# guardex-ai[local] in-cell as a fallback.
+
+guardex-ai[local]
+jupyterlab>=4.0

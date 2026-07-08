@@ -1,0 +1,142 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "guardex-ai"
+version = "0.1.0"
+description = "Open-source AI guardrails: safety classification, PII detection, prompt injection defense for any LLM"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "AtliQ Technologies", email = "developer@atliq.com" }]
+requires-python = ">=3.10"
+keywords = ["guardrails", "llm", "safety", "pii", "content-moderation", "ai-safety", "hallucination-detection", "prompt-injection"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+
+# Minimal core dependencies — only an HTTP client is required for API-mode usage.
+# numpy and ML runtimes are pulled in via the [local] extra.
+dependencies = [
+    "httpx[http2]>=0.27,<1.0",
+]
+
+[project.scripts]
+guardex-dashboard = "guardex.dashboard:_cli"
+
+[project.urls]
+Homepage = "https://github.com/atliq/guardex-ai"
+Documentation = "https://github.com/atliq/guardex-ai#readme"
+Repository = "https://github.com/atliq/guardex-ai"
+Issues = "https://github.com/atliq/guardex-ai/issues"
+
+[project.optional-dependencies]
+# Composable feature extras — install only what you need:
+#   pip install guardex-ai[scope]    # topic-scope only (sentence-transformers + torch)
+#   pip install guardex-ai[pii]      # GLiNER PII only (gliner + torch)
+#   pip install guardex-ai[safety]   # ONNX safety classifier only (onnxruntime + transformers)
+#   pip install guardex-ai[local]    # everything (kitchen-sink for in-process ML)
+scope = [
+    "numpy>=1.24",
+    "sentence-transformers>=2.7",
+    "torch>=2.0",
+    "huggingface-hub>=0.21",
+]
+pii = [
+    "numpy>=1.24",
+    "gliner>=0.2",
+    "torch>=2.0",
+    "huggingface-hub>=0.21",
+]
+safety = [
+    "numpy>=1.24",
+    "onnxruntime>=1.17",
+    "transformers>=4.41",
+    "huggingface-hub>=0.21",
+    "tqdm>=4.65",
+]
+# In-process ML engines — models auto-download to ~/.cache/guardex/ on first use.
+# Includes everything required for zero-config Guard() local mode.
+local = [
+    "numpy>=1.24",
+    "onnxruntime>=1.17",
+    "gliner>=0.2",
+    "sentence-transformers>=2.7",
+    "torch>=2.0",
+    "transformers>=4.41",
+    "huggingface-hub>=0.21",
+    "tqdm>=4.65",
+]
+# YAML policy/config loader (GuardExPolicy.from_yaml + guardex.yaml auto-load)
+yaml = ["pyyaml>=6.0"]
+# OpenTelemetry instrumentation — automatic spans on every screen() call
+otel = [
+    "opentelemetry-api>=1.20",
+    "opentelemetry-sdk>=1.20",
+]
+# Telemetry dashboard — real-time trace viewer at http://localhost:7865
+dashboard = [
+    "opentelemetry-api>=1.20",
+    "opentelemetry-sdk>=1.20",
+    "flask>=3.0",
+]
+# LangChain support (optional — use Guard.screen() directly for any framework).
+# The compatibility range covers langchain-core 0.1.40 (LangChain 0.1.x) through
+# 0.3.x — pinning to >=0.2 broke users on the long-lived 0.1.x line.
+langchain = ["langchain-core>=0.1.40,<0.4"]
+# Development dependencies
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=5",
+    "respx>=0.21",
+    "pytest-httpserver>=1.0",
+    "black>=24",
+    "ruff>=0.4",
+    "mypy>=1.8",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+markers = [
+    "slow: tests that exercise retry/backoff loops and take longer to run",
+    "integration: tests that validate request/response payload shapes end-to-end",
+]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+check_untyped_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+show_error_codes = true
+files = ["guardex"]
+
+[[tool.mypy.overrides]]
+module = [
+    "guardex._engine.*",
+    "guardex.dashboard",
+]
+ignore_errors = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["guardex*"]
+# guardex-server/ lives at the repo root with a hyphen, so it is never
+# importable as a Python package and find_packages cannot pick it up.
+# The previous exclude="guardex.server*" line was a no-op and was removed.
+
+[tool.setuptools.package-data]
+guardex = ["py.typed", "dashboard_assets/*"]
+
+# Note: test files must not be placed inside guardex/ — setuptools exclude-package-data
+# does not apply to .py source files. Keep all test files in /tests.

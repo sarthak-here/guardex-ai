@@ -1,0 +1,66 @@
+name: GuardEx SDK Tests
+
+on:
+  push:
+    branches: [oss-release, main]
+    paths:
+      - 'guardex/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    branches: [oss-release, main]
+    paths:
+      - 'guardex/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: SDK Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11', '3.12', '3.13']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install SDK (dev + local extras)
+        run: pip install -e ".[dev,local]"
+
+      - name: Lint with ruff
+        run: ruff check guardex/ tests/
+
+      - name: Type check with mypy
+        run: mypy guardex/
+
+      - name: Run tests with coverage
+        run: pytest tests/ -v --tb=short --cov=guardex --cov-report=xml --cov-report=term
+
+      - name: Smoke test — zero-config Guard().screen()
+        run: |
+          python - <<'EOF'
+          from guardex import Guard, GuardExPolicy
+          guard = Guard()
+          r1 = guard.screen("hello world", gate="input")
+          assert r1.action == "pass", f"benign text should pass, got {r1.action}"
+          assert r1.safe is True, f"benign text should be safe, got safe={r1.safe}"
+          r2 = guard.screen("Email me at a@b.com", gate="input",
+                            ).text  # default policy masks
+          assert "[" in r2 or "{{pii" in r2 or "@b.com" not in r2, f"PII should be masked, got: {r2}"
+          policy = GuardExPolicy(pii_action="block")
+          r3 = Guard(policy=policy).screen("Email me at a@b.com", gate="input")
+          assert r3.action == "block", f"pii_action=block should block, got {r3.action}"
+          print("smoke OK")
+          EOF

@@ -1,0 +1,43 @@
+# guardex.yaml - local ML engine settings for GuardEx in-process mode.
+# Copy this file to guardex.yaml in your project root; it is auto-loaded
+# from the current working directory. All fields have safe defaults.
+#
+# This is NOT the file for GuardExPolicy.from_yaml(). That call reads a
+# flat policy file (pii_action, blocked_categories, topic_scope, ...) -
+# see docs/guides/configuration.md.
+#
+# Environment variables (GUARDEX_* prefix) override this file.
+# Example: GUARDEX_CACHE_DIR=/tmp/guardex
+
+# ── Model selection ────────────────────────────────────────────────────────────
+models:
+  # HuggingFace repo for the ONNX safety classifier
+  # Swap in your own fine-tuned model - must be a compatible ONNX classifier
+  classifier: AtliQ-Technologies/toxicity-fast-onnx
+
+  # HuggingFace repo for the GLiNER PII detector
+  pii: nvidia/gliner-pii
+
+  # Sentence-transformers model for topic scope + grounding
+  embeddings: sentence-transformers/all-MiniLM-L6-v2
+
+  # Ollama endpoint for optional LlamaGuard deep-safety layer
+  # Requires: ollama pull llama-guard3:1b && ollama serve
+  ollama_url: http://localhost:11434
+  ollama_model: llama-guard3:1b
+
+# ── Cache ──────────────────────────────────────────────────────────────────────
+# Directory for downloaded model files.
+# First-install footprint: ~250 MB (GLiNER + sentence-transformers + ONNX).
+# Grounding adds ~700 MB on top, only when GUARDEX_GROUNDING_ENABLED=1.
+# Override with: GUARDEX_CACHE_DIR=/path/to/cache
+cache_dir: ~/.cache/guardex
+
+# ── Policy defaults ────────────────────────────────────────────────────────────
+# fail_open is the only policy key this file reads. Everything else (PII
+# entities, action, threshold, blocked categories, topic scope) is set on
+# GuardExPolicy in code or in a separate policy YAML loaded via
+# GuardExPolicy.from_yaml() - see docs/guides/configuration.md.
+policy:
+  # Whether to silently pass through on ML errors instead of raising
+  fail_open: false
