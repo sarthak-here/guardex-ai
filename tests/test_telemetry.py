@@ -1,7 +1,6 @@
 """Tests for guardex.telemetry — OTel spans and audit logging."""
 
 import logging
-import pytest
 
 from guardex.telemetry import (
     screening_span,
@@ -10,7 +9,7 @@ from guardex.telemetry import (
     otel_available,
 )
 from guardex._types import (
-    ScreenResult, ClassifyResult, PIIResult, PIIEntity, ScopeResult,
+    ScreenResult, ClassifyResult, PIIResult, ScopeResult,
 )
 
 

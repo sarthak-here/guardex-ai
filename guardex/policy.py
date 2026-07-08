@@ -319,7 +319,7 @@ class GuardExPolicy:
     def from_yaml(cls, path: str) -> "GuardExPolicy":
         """Load policy from a YAML file. Requires PyYAML."""
         try:
-            import yaml  # type: ignore
+            import yaml
         except ImportError as e:
             raise ImportError(
                 "PyYAML is required for GuardExPolicy.from_yaml(). "

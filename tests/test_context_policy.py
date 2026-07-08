@@ -10,7 +10,7 @@ Validates the four composition laws:
 import pytest
 from guardex.context import (
     GuardExContext, DeploymentContext, UserContext, RequestContext,
-    AuthStatus, UserRole, Region, Industry, RequestType,
+    AuthStatus, Region, Industry, RequestType,
 )
 from guardex.policy import GuardExPolicy
 from guardex.policy_override import PolicyOverride

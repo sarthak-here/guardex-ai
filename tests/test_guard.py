@@ -10,7 +10,6 @@ import respx
 import httpx
 
 from guardex.guard import Guard, _parse_screen_result
-from guardex._types import ScreenResult, ClassifyResult, PIIResult
 from guardex.exceptions import GuardExViolation, GuardExAPIError
 
 from tests.helpers import (

@@ -46,6 +46,7 @@ PII vault::
     final_reply = vault.restore(llm_reply)
 """
 
+from ._version import get_package_version as _get_version
 from ._types import (
     Action,
     ClassifyResult,
@@ -211,5 +212,4 @@ __all__ = [
     "SafetyRouteEngine",
 ]
 
-from ._version import get_package_version as _get_version
 __version__ = _get_version()

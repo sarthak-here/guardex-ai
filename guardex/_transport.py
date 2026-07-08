@@ -140,7 +140,7 @@ def grounding_failopen_shape(mode: Optional[str]) -> Dict[str, Any]:
     }
 
 
-def base_headers(sdk_version: str, api_key: str) -> Dict[str, str]:
+def base_headers(sdk_version: str, api_key: Optional[str]) -> Dict[str, str]:
     """Build the constant HTTP headers attached to every request."""
     headers: Dict[str, str] = {
         "User-Agent": f"guardex-python/{sdk_version}",

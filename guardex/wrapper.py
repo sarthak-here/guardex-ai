@@ -30,7 +30,7 @@ except ImportError:
     _LANGCHAIN_AVAILABLE = False
     # Fallback stubs so the class definition doesn't blow up at parse time
     BaseChatModel = object  # type: ignore[misc,assignment]
-    PrivateAttr = lambda **kw: None  # type: ignore[misc,assignment]
+    PrivateAttr = lambda **kw: None  # type: ignore[assignment]  # noqa: E731
 
 from .exceptions import GuardExViolation, PIIViolation
 from .guard import _enforce_block
@@ -52,7 +52,7 @@ def _require_langchain() -> None:
         )
 
 
-class GuardedLLM(BaseChatModel):  # type: ignore[misc]
+class GuardedLLM(BaseChatModel):
     """Wraps any ``BaseChatModel`` with server-side PII detection and safety rails.
 
     Parameters

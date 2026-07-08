@@ -23,17 +23,9 @@ import logging
 from typing import Any, AsyncIterator, Callable, Iterator, Optional, Tuple, TYPE_CHECKING
 
 from ._stream_base import (
-    INPUT_GATES,
-    MIN_BOUNDARY_CHECK as _MIN_BOUNDARY_CHECK,
-    VAULT_TOKEN_END as _VAULT_TOKEN_END,
-    VAULT_TOKEN_PREFIX as _VAULT_TOKEN_PREFIX,
     VaultRestoreMode,
-    _CODE_BLOCK_CLOSE,
-    _PARAGRAPH_BREAK,
-    _SENTENCE_BOUNDARY,
     classify_should_block,
     enforce_classify_block,
-    has_content_boundary as _has_content_boundary,
     run_local_gates,
     screen_kwargs_for_buffer,
     should_flush as _should_flush_fn,

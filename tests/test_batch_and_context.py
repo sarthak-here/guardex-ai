@@ -1,12 +1,9 @@
 """Tests for batch fallback, context on classify/pii_scan/stream, and min_confidence."""
 
-import pytest
 import respx
-import httpx
 
 from guardex.guard import Guard, _parse_screen_result
 from guardex.policy import GuardExPolicy
-from guardex._types import ScreenResult, ClassifyResult, PIIResult
 from guardex.context import GuardExContext, DeploymentContext
 
 from tests.helpers import (
@@ -61,7 +58,7 @@ class TestGuardScreenBatch:
 class TestContextOnMethods:
     @respx.mock(base_url="http://localhost:8001")
     def test_classify_with_context(self, respx_mock, guard):
-        route = respx_mock.post("/v1/classify").respond(json=SAFE_CLASSIFY_RESPONSE)
+        respx_mock.post("/v1/classify").respond(json=SAFE_CLASSIFY_RESPONSE)
 
         ctx = GuardExContext(deployment=DeploymentContext.PRODUCTION)
         result = guard.classify("hello", gate="input", context=ctx)

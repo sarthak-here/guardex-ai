@@ -11,7 +11,7 @@ Tests cover:
 import asyncio
 import unittest
 from importlib.metadata import version as _pkg_version
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import patch
 
 import httpx
 import respx

@@ -2,7 +2,6 @@
 """Smoke tests for LocalRunner — verifies in-process ML pipeline."""
 from __future__ import annotations
 
-import pytest
 from unittest.mock import MagicMock, patch
 
 

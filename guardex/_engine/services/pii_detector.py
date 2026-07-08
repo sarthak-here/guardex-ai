@@ -13,7 +13,6 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from guardex._engine.settings import local_settings as settings
 
 logger = logging.getLogger(__name__)
 

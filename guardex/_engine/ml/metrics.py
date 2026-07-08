@@ -17,7 +17,6 @@ Thread-safe via ``threading.Lock`` on each metric.
 from __future__ import annotations
 
 import threading
-import time
 from collections import defaultdict
 
 class Counter:
@@ -31,7 +30,7 @@ class Counter:
         self._lock = threading.Lock()
 
     def inc(self, value: float = 1.0, **label_values: str) -> None:
-        key = tuple(label_values.get(l, "") for l in self.labels)
+        key = tuple(label_values.get(lbl, "") for lbl in self.labels)
         with self._lock:
             self._values[key] += value
 
@@ -41,7 +40,7 @@ class Counter:
             for key, val in sorted(self._values.items()):
                 if self.labels:
                     label_str = ",".join(
-                        f'{l}="{v}"' for l, v in zip(self.labels, key)
+                        f'{lbl}="{v}"' for lbl, v in zip(self.labels, key)
                     )
                     lines.append(f"{self.name}{{{label_str}}} {val}")
                 else:

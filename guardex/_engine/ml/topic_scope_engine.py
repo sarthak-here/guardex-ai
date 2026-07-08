@@ -445,7 +445,7 @@ class TopicScopeEngine:
                 # Per-topic centroid = mean of that topic's utterance vectors
                 topic_centroids = []
                 for topic in topics:
-                    mask = np.array([l == topic for l in all_utterance_labels])
+                    mask = np.array([lbl == topic for lbl in all_utterance_labels])
                     if mask.any():
                         centroid_vec = utterance_embeddings[mask].mean(axis=0)
                         norm = np.linalg.norm(centroid_vec)

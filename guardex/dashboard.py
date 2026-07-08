@@ -23,9 +23,12 @@ Standalone
 
 from __future__ import annotations
 import logging
+import pathlib
 import socket
 import sys
-import threading, time, webbrowser
+import threading
+import time
+import webbrowser
 from collections import deque
 
 logger = logging.getLogger(__name__)
@@ -125,7 +128,6 @@ except ImportError:
     def send_from_directory(*a, **kw): return None  # type: ignore[misc]
 
 # Serve index.html / style.css / app.js from the bundled assets directory.
-import pathlib
 _ASSETS_DIR = pathlib.Path(__file__).parent / "dashboard_assets"
 app = Flask(__name__, static_folder=str(_ASSETS_DIR), static_url_path="/static")
 

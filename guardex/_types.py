@@ -10,7 +10,7 @@ else builds on.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Literal, Optional
+from typing import Literal, Optional, cast
 
 
 # The 8 Gates
@@ -47,9 +47,9 @@ def gate_to_stage(gate: str) -> str:
     return gate
 
 
-def output_gate_for(gate: str) -> str:
+def output_gate_for(gate: str) -> "Gate":
     """Return the corresponding output gate for a given input gate."""
-    return _OUTPUT_GATE.get(gate, "output")
+    return cast("Gate", _OUTPUT_GATE.get(gate, "output"))
 
 
 # Result Types

@@ -13,8 +13,8 @@ import pytest
 
 from types import SimpleNamespace
 
-from guardex.stream import StreamGuard, _SENTENCE_BOUNDARY
-from guardex._stream_base import screen_kwargs_for_buffer
+from guardex.stream import StreamGuard
+from guardex._stream_base import screen_kwargs_for_buffer, _SENTENCE_BOUNDARY
 from guardex.policy import GuardExPolicy, TopicScope
 from guardex.exceptions import GuardExViolation
 
@@ -137,7 +137,7 @@ class TestStreamGuardBuffering:
         sg = StreamGuard(client, _default_policy(), gate="output", flush_every=256)
 
         chunks = iter([short])
-        result = list(sg.run(chunks))
+        list(sg.run(chunks))
 
         # Only final flush, no mid-stream flush
         assert client.screen.call_count == 1

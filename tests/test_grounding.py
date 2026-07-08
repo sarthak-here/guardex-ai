@@ -6,7 +6,6 @@ respx to mock the /v1/grounding endpoint so no server is required.
 
 from __future__ import annotations
 
-import pytest
 import respx
 
 from guardex.guard import Guard

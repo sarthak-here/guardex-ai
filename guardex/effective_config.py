@@ -3,7 +3,7 @@
 """EffectiveConfig - typed representation of merged dashboard + code config."""
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from ._types import CATEGORY_DESCRIPTIONS as CATEGORY_LABELS  # canonical names
 
@@ -80,7 +80,7 @@ class EffectiveConfig:
     last_dashboard_updated_at: Optional[str] = None
 
     @classmethod
-    def from_api_response(cls, data: Dict[str, object]) -> "EffectiveConfig":
+    def from_api_response(cls, data: Dict[str, Any]) -> "EffectiveConfig":
         """Parse from GET /v1/config/effective response."""
         effective = data.get("effective", {})
         pii_data = effective.get("pii", {})

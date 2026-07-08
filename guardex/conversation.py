@@ -134,7 +134,6 @@ class ConversationGuard:
             gate = "output"
         text_to_screen = self._build_payload(content)
 
-        from ._types import ScreenResult
         result = self._guard.screen(text_to_screen, gate=gate, context=context)
 
         # Store the ORIGINAL content in history (not the concatenated payload)

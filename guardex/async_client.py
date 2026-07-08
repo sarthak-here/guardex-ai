@@ -20,7 +20,7 @@ import asyncio
 import os
 import random
 import logging
-from typing import Any, Dict, List, Literal
+from typing import Any, Dict, List, Literal, TYPE_CHECKING
 
 import httpx
 
@@ -36,6 +36,9 @@ from ._transport import (
 )
 from ._types import resolve_categories
 from ._version import get_package_version as _get_version
+
+if TYPE_CHECKING:
+    from .effective_config import EffectiveConfig
 
 logger = logging.getLogger(__name__)
 

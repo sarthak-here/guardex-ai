@@ -49,7 +49,6 @@ def _download_onnx_model(repo_id: str, use_int8: bool) -> tuple[str, str]:
     so subsequent calls are instant.
     """
     from huggingface_hub import hf_hub_download, snapshot_download
-    import os
 
     model_filename = "model_int8.onnx" if use_int8 else "model.onnx"
 

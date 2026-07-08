@@ -1,6 +1,5 @@
 """Tests for guardex.pii_vault — PIIVault reversible tokenisation."""
 
-import re
 import pytest
 from guardex.pii_vault import PIIVault, VaultEntry, _TOKEN_RE
 from guardex._types import PIIResult, PIIEntity

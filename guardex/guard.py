@@ -47,7 +47,7 @@ import time
 import logging
 import os
 from pathlib import Path
-from typing import Any, Callable, Iterator, AsyncIterator, List, TypeVar
+from typing import Any, Callable, Iterator, AsyncIterator, List, TypeVar, TYPE_CHECKING
 
 from .client import GuardExClient
 from .async_client import AsyncGuardExClient
@@ -61,6 +61,9 @@ from ._types import (
     ScopeResult, Action, GateTrace, gate_to_stage, output_gate_for,
 )
 from .exceptions import GuardExViolation
+
+if TYPE_CHECKING:
+    from ._types import GroundingResult
 
 logger = logging.getLogger(__name__)
 
@@ -1314,8 +1317,12 @@ class Guard:
         """
         if self._is_local_mode():
             from .exceptions import GuardExViolation
-            from .stream import _VAULT_TOKEN_PREFIX, _VAULT_TOKEN_END
-            from ._stream_base import run_local_gates, screen_kwargs_for_buffer
+            from ._stream_base import (
+                VAULT_TOKEN_PREFIX as _VAULT_TOKEN_PREFIX,
+                VAULT_TOKEN_END as _VAULT_TOKEN_END,
+                run_local_gates,
+                screen_kwargs_for_buffer,
+            )
 
             policy = self._resolve_policy(context)
             buf: list[str] = []
@@ -1345,6 +1352,7 @@ class Guard:
                 nonlocal restore_pending
                 if effective_restore == "off":
                     return emit, restore_pending
+                assert vault is not None
                 if effective_restore == "buffered":
                     return "", restore_pending + emit
                 # stream-safe
@@ -1483,7 +1491,7 @@ class Guard:
                         pass
             return total
 
-        info = {
+        info: dict[str, Any] = {
             "guardex_cache": {
                 "path": str(guardex_dir),
                 "exists": guardex_dir.exists(),

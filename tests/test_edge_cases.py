@@ -10,7 +10,6 @@ import pytest
 import respx
 
 from guardex.guard import Guard
-from tests.helpers import SAFE_SCREEN_RESPONSE
 
 
 # Large input size (~1 MB of 'A's) — well past any reasonable payload limit.
