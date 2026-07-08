@@ -11,8 +11,11 @@ loading the 22 MB all-MiniLM-L6-v2 model in CI.
 
 from __future__ import annotations
 
-import numpy as np
 import pytest
+
+pytest.importorskip("numpy")
+
+import numpy as np
 
 from guardex.safety_route import SafetyRoute, SafetyRouteEngine, SafetyRouteResult
 from guardex.encoders import (

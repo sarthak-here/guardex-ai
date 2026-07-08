@@ -20,7 +20,7 @@ jobs:
         with:
           python-version: '3.12'
 
-      - run: pip install -e ".[dev]"
+      - run: pip install -e ".[dev,local,langchain,otel]"
       - run: pytest tests/ -q
 
   build:
