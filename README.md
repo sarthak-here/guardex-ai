@@ -4,7 +4,7 @@
 
 # GuardEx: AI Guardrails
 
-GuardEx is a Python SDK that screens LLM inputs and outputs for unsafe content, PII, prompt injection, and optional grounding checks. No external API required - everything runs in-process. Plug it in front of any LLM call in any framework with about ten lines of code.
+GuardEx is a Python SDK that screens LLM inputs and outputs for unsafe content, PII, prompt injection, and optional grounding checks. Everything runs in-process, with no external API. It drops in front of any LLM call in about ten lines of code.
 
 > Apache 2.0. Python 3.10+.
 
@@ -21,7 +21,7 @@ from guardex import Guard
 
 guard = Guard()  # zero-config, models download on first use
 
-result = guard.screen("user message here", gate="input")
+result = guard.screen("How do I reset my password?", gate="input")
 
 if result.blocked:
     print(f"Blocked: {result.classify.category} - {result.classify.description}")
@@ -33,7 +33,7 @@ else:
 
 The first `Guard()` call downloads about 250 MB of models to `~/.cache/guardex/` and `~/.cache/huggingface/hub/`. Subsequent calls are warm.
 
-Prefer a guided tour? Start with the [interactive notebooks](docs/notebooks/) - three Colab-ready tutorials covering the quickstart flow, PII detection, and content safety.
+Three Colab-ready [notebooks](docs/notebooks/) walk through the quickstart flow, PII detection, and content safety.
 
 For full S1-S14 safety classification, run LlamaGuard through Ollama (see the note below). Without Ollama, GuardEx uses the ONNX fast gate. Grounding is opt-in and downloads an additional ~700 MB NLI model; see [Configuration](#configuration) to change either default.
 
@@ -57,7 +57,7 @@ from guardex import Guard
 
 async def main():
     async with Guard() as guard:
-        result = await guard.ascreen("user message here", gate="input")
+        result = await guard.ascreen("What's your refund policy?", gate="input")
         print(result.action, result.classify.category)
 
 asyncio.run(main())
@@ -145,7 +145,7 @@ its template. See [configuration.md](docs/guides/configuration.md) for both.
 | Multi-turn awareness | `ConversationGuard` detects escalation across turns | per-turn |
 | Custom safety routes | User-defined blocklist categories via example utterances | ~5 ms |
 
-Out of the box, the ONNX fast gate makes a binary safe/toxic decision - it reliably catches toxic language but not neutrally-phrased harmful requests (e.g. "how do I make a weapon"). Per-category S1-S14 verdicts and coverage of those requests need the optional LlamaGuard layer via Ollama (see the note under Quick Start). Latencies measured on an Apple M2; cold-start adds the model download (~250 MB without grounding, ~950 MB with grounding enabled).
+By default, the ONNX fast gate makes a binary safe/toxic decision: it reliably catches toxic language but not neutrally-phrased harmful requests (e.g. "how do I make a weapon"). Per-category S1-S14 verdicts and coverage of those requests need the optional LlamaGuard layer via Ollama (see the note under Quick Start). Latencies measured on an Apple M2; cold-start adds the model download (~250 MB without grounding, ~950 MB with grounding enabled).
 
 ---
 

@@ -48,7 +48,7 @@ jobs:
       - name: Run tests with coverage
         run: pytest tests/ -v --tb=short --cov=guardex --cov-report=xml --cov-report=term
 
-      - name: Smoke test — zero-config Guard().screen()
+      - name: Smoke test - zero-config Guard().screen()
         run: |
           python - <<'EOF'
           from guardex import Guard, GuardExPolicy
