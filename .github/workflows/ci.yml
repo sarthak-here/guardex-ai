@@ -36,8 +36,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
 
-      - name: Install SDK (dev + local extras)
-        run: pip install -e ".[dev,local]"
+      - name: Install SDK (dev + local + integration extras)
+        run: pip install -e ".[dev,local,langchain,otel]"
 
       - name: Lint with ruff
         run: ruff check guardex/ tests/
