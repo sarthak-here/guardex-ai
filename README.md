@@ -16,6 +16,14 @@ GuardEx is a Python SDK that screens LLM inputs and outputs for unsafe content, 
 pip install 'guardex-ai[local]'    # adds in-process ML engines
 ```
 
+Or from source:
+
+```bash
+git clone https://github.com/atliq/guardex-ai.git
+cd guardex-ai
+pip install -e '.[local]'
+```
+
 ```python
 from guardex import Guard
 

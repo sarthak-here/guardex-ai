@@ -6,6 +6,20 @@ project tries to follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-07-08
+
+### Changed
+
+- README: corrected the asset URL, and added a
+  from-source install option.
+
+### Fixed
+
+- Resolved `ruff` and `mypy` findings across the SDK and tests; no runtime
+  behavior change.
+- CI installs the `langchain` and `otel` extras so the integration modules
+  are type-checked, and skips numpy stubs in mypy.
+
 ## [0.1.0] - 2026-07-08
 
 First public open-source release.
@@ -65,5 +79,6 @@ First public open-source release.
   industry-wide unsolved problems.
 - A separate self-hosted server distribution is not included.
 
-[Unreleased]: https://github.com/atliq/guardex-ai/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/atliq/guardex-ai/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/atliq/guardex-ai/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/atliq/guardex-ai/releases/tag/v0.1.0

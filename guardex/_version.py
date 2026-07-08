@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 
 # Keep in sync with ``[project] version`` in pyproject.toml.
-FALLBACK_VERSION = "0.1.0"
+FALLBACK_VERSION = "0.1.1"
 
 logger = logging.getLogger(__name__)
 
