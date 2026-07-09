@@ -120,3 +120,4 @@ requirements.txt
 # Added by code-review-graph
 .code-review-graph/
 dist*
+AGENTS.md

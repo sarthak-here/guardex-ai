@@ -4,6 +4,14 @@
 
 # GuardEx: AI Guardrails
 
+<p align="center">
+  <a href="https://pypi.org/project/guardex-ai/"><img src="https://img.shields.io/pypi/v/guardex-ai?color=blue" alt="PyPI"></a>
+  <a href="https://pypi.org/project/guardex-ai/"><img src="https://img.shields.io/pypi/dm/guardex-ai?label=downloads%2Fmonth" alt="Downloads"></a>
+  <a href="https://pypi.org/project/guardex-ai/"><img src="https://img.shields.io/pypi/pyversions/guardex-ai" alt="Python"></a>
+  <a href="https://github.com/atliq/guardex-ai/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/atliq/guardex-ai/ci.yml?label=CI" alt="CI"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-green" alt="License"></a>
+</p>
+
 GuardEx is a Python SDK that screens LLM inputs and outputs for unsafe content, PII, prompt injection, and optional grounding checks. Everything runs in-process, with no external API. It drops in front of any LLM call in about ten lines of code.
 
 > Apache 2.0. Python 3.10+.
@@ -137,6 +145,10 @@ policy = GuardExPolicy.from_yaml("guardex_policy.yaml")
 `guardex.yaml`, which configures the local ML engine (model repos, cache
 dir) and is auto-loaded from your project root. `guardex.yaml.example` is
 its template. See [configuration.md](docs/guides/configuration.md) for both.
+
+Need domain-specific PII entities (medical record numbers, employee IDs)?
+`GuardExPolicy(pii_custom_regex={...})` adds your own label → regex rules,
+local mode only. See [PII Detection: Custom Regex Patterns](docs/guides/pii-detection.md#custom-regex-patterns).
 
 ---
 

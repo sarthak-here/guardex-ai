@@ -91,7 +91,7 @@ GuardEx detects 31 PII entity types across 5 categories. All are enabled by defa
 | `database_url` | Database connection strings | `postgres://user:pass@host/db` | `[DATABASE_URL]` |
 
 !!! tip "Custom PII entities"
-    Need to detect domain-specific PII (medical record numbers, student IDs, etc.)? The built-in entity list above covers the most common cases. For additional domain-specific patterns, pre-process the text with your own regex-based scrubber before passing it to `guard.screen()`.
+    Need to detect domain-specific PII (medical record numbers, employee IDs, etc.)? Use `pii_custom_regex` — see [Custom Regex Patterns](#custom-regex-patterns) below.
 
 ---
 
@@ -201,6 +201,39 @@ guard = Guard(policy=GuardExPolicy(pii_threshold=0.95))
 | 0.3 - 0.6 | High sensitivity - catches most PII but may flag non-PII |
 | 0.85 | Default - real PII consistently scores at or above this; the 0.6-0.8 false-positive band is excluded |
 | 0.9 - 0.95 | Conservative - only the highest-confidence detections |
+
+### Custom Regex Patterns
+
+`pii_custom_regex` extends the built-in entity list with your own label → regex mappings, for domain-specific PII the GLiNER model doesn't know about (medical record numbers, employee IDs, internal ticket IDs, ...):
+
+```python
+from guardex import Guard, GuardExPolicy
+
+guard = Guard(policy=GuardExPolicy(
+    pii_custom_regex={
+        "employee_id": r"EMP-\d{6}",
+        "medical_record_number": r"MRN-[A-Z]{2}\d{8}",
+    },
+))
+
+result = guard.screen("Patient MRN-AB12345678 was seen by EMP-004821", gate="input")
+print(result.text)
+# "Patient [MEDICAL_RECORD_NUMBER] was seen by [EMPLOYEE_ID]"
+```
+
+The dict key becomes both the entity label and the mask placeholder (uppercased), so `"employee_id"` masks to `[EMPLOYEE_ID]`. Patterns compile with `re.IGNORECASE`.
+
+Pair it with `pii_custom_context_keywords` to boost confidence when a keyword appears near a match:
+
+```python
+guard = Guard(policy=GuardExPolicy(
+    pii_custom_regex={"employee_id": r"EMP-\d{6}"},
+    pii_custom_context_keywords={"employee_id": ["employee", "staff", "badge"]},
+))
+```
+
+!!! warning "Local mode only"
+    `pii_custom_regex` and `pii_custom_context_keywords` only take effect when `Guard` runs in local mode. In server mode (`base_url`/`api_key` set), the server does not accept caller-supplied regex or word lists, so these fields are ignored.
 
 ---
 
