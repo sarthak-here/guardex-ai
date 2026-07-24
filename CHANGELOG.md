@@ -30,6 +30,11 @@ project tries to follow [Semantic Versioning](https://semver.org/).
   unaffected; a server that rejects unknown fields will now return a
   validation error for policies using custom regex.
 
+### Fixed
+
+- Pinned `ruff` in the dev extras so CI lint results no longer change
+  when a new ruff release alters its default rule set.
+
 ## [0.1.1] - 2026-07-08
 
 ### Changed

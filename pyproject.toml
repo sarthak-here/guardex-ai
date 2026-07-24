@@ -109,7 +109,7 @@ dev = [
     "respx>=0.21",
     "pytest-httpserver>=1.0",
     "black>=24",
-    "ruff>=0.4",
+    "ruff==0.15.12",
     "mypy>=1.8",
 ]
 
