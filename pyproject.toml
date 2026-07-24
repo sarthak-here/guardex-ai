@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "guardex-ai"
-version = "0.1.1"
+version = "0.2.0"
 description = "Open-source AI guardrails: safety classification, PII detection, prompt injection defense for any LLM"
 readme = "README.md"
 license = { text = "Apache-2.0" }
@@ -32,6 +32,7 @@ dependencies = [
 
 [project.scripts]
 guardex-dashboard = "guardex.dashboard:_cli"
+guardex-server = "guardex.server:main"
 
 [project.urls]
 Homepage = "https://github.com/atliq/guardex-ai"
@@ -93,6 +94,13 @@ dashboard = [
 # The compatibility range covers langchain-core 0.1.40 (LangChain 0.1.x) through
 # 0.3.x — pinning to >=0.2 broke users on the long-lived 0.1.x line.
 langchain = ["langchain-core>=0.1.40,<0.4"]
+# Reference screening server (guardex-server CLI). Pair with [local] for the
+# ML engines: pip install 'guardex-ai[local,server]'
+server = [
+    "fastapi>=0.110",
+    "pydantic>=2",
+    "uvicorn>=0.29",
+]
 # Development dependencies
 dev = [
     "pytest>=8",

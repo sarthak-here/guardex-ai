@@ -6,6 +6,30 @@ project tries to follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-11
+
+### Added
+
+- Reference server: `guardex.server` (FastAPI) exposes the SDK's HTTP
+  protocol (`/v1/screen`, `/v1/screen/batch`, `/v1/classify`,
+  `/v1/pii/scan`, `/v1/pii/mask`, `/v1/grounding`, `/v1/health`) over an
+  in-process `LocalRunner`. Install with `pip install 'guardex-ai[server]'`,
+  run with `guardex-server`.
+- `pii_custom_regex` works in server mode, for both `screen()` and
+  `screen_batch()`. The reference server validates caller patterns at the
+  request boundary: at most 32 patterns, 512 characters each, and every
+  pattern must compile.
+
+### Changed
+
+- Local pipeline runs safety classification and PII detection concurrently,
+  cutting screen latency to roughly the slower of the two gates.
+- Server-mode `Guard` now sends `pii_custom_regex` in the `/v1/screen`
+  body when the policy sets it (previously local-only and silently
+  ignored in server mode). Servers that ignore unknown JSON fields are
+  unaffected; a server that rejects unknown fields will now return a
+  validation error for policies using custom regex.
+
 ## [0.1.1] - 2026-07-08
 
 ### Changed
@@ -79,6 +103,7 @@ First public open-source release.
   industry-wide unsolved problems.
 - A separate self-hosted server distribution is not included.
 
-[Unreleased]: https://github.com/atliq/guardex-ai/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/atliq/guardex-ai/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/atliq/guardex-ai/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/atliq/guardex-ai/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/atliq/guardex-ai/releases/tag/v0.1.0

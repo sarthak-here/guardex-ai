@@ -232,8 +232,8 @@ guard = Guard(policy=GuardExPolicy(
 ))
 ```
 
-!!! warning "Local mode only"
-    `pii_custom_regex` and `pii_custom_context_keywords` only take effect when `Guard` runs in local mode. In server mode (`base_url`/`api_key` set), the server does not accept caller-supplied regex or word lists, so these fields are ignored.
+!!! warning "Server-mode limits"
+    `pii_custom_regex` works in both local and server mode; the reference server caps it at 32 patterns of 512 characters each and rejects patterns that do not compile. `pii_custom_context_keywords`, `pii_deny_list`, and `pii_allow_list` only take effect in local mode.
 
 ---
 

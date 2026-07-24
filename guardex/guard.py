@@ -595,18 +595,18 @@ class Guard:
             if ts.alpha > 0.0:
                 scope_kwargs["scope_alpha"] = ts.alpha
 
-        # PII customization is local-only; the server doesn't accept caller-supplied
-        # regex patterns or word lists for security reasons.
-        local_pii_kwargs: dict[str, Any] = {}
+        # Custom regex travels in both modes; deny/allow lists and context
+        # keywords stay local-only (the server doesn't accept them).
+        pii_kwargs: dict[str, Any] = {}
+        if policy.pii_custom_regex:
+            pii_kwargs["pii_custom_regex"] = policy.pii_custom_regex
         if self._is_local_mode():
             if policy.pii_deny_list:
-                local_pii_kwargs["pii_deny_list"] = policy.pii_deny_list
+                pii_kwargs["pii_deny_list"] = policy.pii_deny_list
             if policy.pii_allow_list:
-                local_pii_kwargs["pii_allow_list"] = policy.pii_allow_list
-            if policy.pii_custom_regex:
-                local_pii_kwargs["pii_custom_regex"] = policy.pii_custom_regex
+                pii_kwargs["pii_allow_list"] = policy.pii_allow_list
             if policy.pii_custom_context_keywords:
-                local_pii_kwargs["pii_custom_context_keywords"] = policy.pii_custom_context_keywords
+                pii_kwargs["pii_custom_context_keywords"] = policy.pii_custom_context_keywords
 
         audit_headers = self._build_audit_headers(policy, context)
 
@@ -622,7 +622,7 @@ class Guard:
                 audit_log=policy.audit_logging,
                 extra_headers=audit_headers,
                 **scope_kwargs,
-                **local_pii_kwargs,
+                **pii_kwargs,
             )
             elapsed = (time.monotonic() - start) * 1000
 
@@ -822,6 +822,7 @@ class Guard:
             categories=policy.blocked_categories,
             pii_entities=policy.pii_entities if policy.pii_enabled else None,
             pii_threshold=policy.pii_threshold,
+            pii_custom_regex=policy.pii_custom_regex or None,
             cascade_mode=policy.cascade_mode,
             extra_headers=audit_headers,
         )
@@ -1138,6 +1139,10 @@ class Guard:
             if ts.alpha > 0.0:
                 scope_kwargs["scope_alpha"] = ts.alpha
 
+        pii_kwargs: dict[str, Any] = {}
+        if policy.pii_custom_regex:
+            pii_kwargs["pii_custom_regex"] = policy.pii_custom_regex
+
         audit_headers = self._build_audit_headers(policy, context)
 
         with screening_span(gate) as span:
@@ -1152,6 +1157,7 @@ class Guard:
                 audit_log=policy.audit_logging,
                 extra_headers=audit_headers,
                 **scope_kwargs,
+                **pii_kwargs,
             )
             elapsed = (time.monotonic() - start) * 1000
 

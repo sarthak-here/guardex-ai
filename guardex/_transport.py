@@ -39,6 +39,7 @@ def build_screen_payload(
     audit_log: bool,
     categories: Optional[List[str]],
     pii_entities: Optional[List[str]],
+    pii_custom_regex: Optional[Dict[str, str]] = None,
     scope_topics: Optional[List[str]] = None,
     scope_utterances: Optional[Dict[str, List[str]]] = None,
     scope_examples: Optional[List[str]] = None,
@@ -64,6 +65,8 @@ def build_screen_payload(
         payload["categories"] = resolve_categories(categories)
     if pii_entities:
         payload["pii_entities"] = pii_entities
+    if pii_custom_regex:
+        payload["pii_custom_regex"] = pii_custom_regex
 
     if scope_topics:
         payload["scope_topics"] = scope_topics
@@ -88,6 +91,7 @@ def build_screen_batch_payload(
     cascade_mode: str,
     categories: Optional[List[str]],
     pii_entities: Optional[List[str]],
+    pii_custom_regex: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Any]:
     """Build the JSON body for ``POST /v1/screen/batch``."""
     resolved_cats = resolve_categories(categories) if categories else None
@@ -101,6 +105,7 @@ def build_screen_batch_payload(
                 "cascade_mode": cascade_mode,
                 **({"categories": resolved_cats} if resolved_cats else {}),
                 **({"pii_entities": pii_entities} if pii_entities else {}),
+                **({"pii_custom_regex": pii_custom_regex} if pii_custom_regex else {}),
             }
             for t in texts
         ]

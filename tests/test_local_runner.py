@@ -124,3 +124,48 @@ class TestLocalRunnerInterface:
         assert raw["classify"]["safe"] is False
         assert raw["classify"]["category"] == "S11"
         assert req_id is not None
+
+
+class TestPipelineConcurrency:
+    def test_classify_and_pii_overlap(self, monkeypatch):
+        """Classify and PII run concurrently, not sequentially.
+
+        The fake classifier blocks until the fake PII detector has started;
+        a sequential pipeline would never unblock it.
+        """
+        import threading
+        from guardex._engine.runner import LocalRunner
+        monkeypatch.setattr(
+            "guardex._engine.runner._providers_initialized", False, raising=False
+        )
+
+        pii_started = threading.Event()
+
+        def fake_classify(text, stage="input", categories=None, cascade_mode=None):
+            assert pii_started.wait(timeout=5.0), \
+                "PII never started while classify was pending - pipeline is sequential"
+            return {"safe": True, "category": None, "categories": [], "confidence": 1.0}
+
+        def fake_pii(text, **kwargs):
+            pii_started.set()
+            return {"has_pii": False, "entities": [], "masked_text": None}
+
+        with patch("guardex._engine.runner._ensure_providers"), \
+             patch("guardex._engine.ml.input_validator.validate_input",
+                   return_value=MagicMock(valid=True)), \
+             patch("guardex._engine.ml.keyword_gate.check_keyword_gate",
+                   return_value=MagicMock(matched=False)), \
+             patch("guardex._engine.ml.text_normalizer.normalize_for_classification",
+                   return_value="hello"):
+
+            runner = LocalRunner()
+            runner._classify_raw = fake_classify
+            runner._pii_raw = fake_pii
+
+            raw, req_id = runner.screen("hello world")
+
+        assert raw["classify"]["safe"] is True
+        assert raw["pii"]["has_pii"] is False
+        gates = {d["gate"]: d for d in raw["_diagnostics"]}
+        assert gates["classify"]["ran"] is True
+        assert gates["pii"]["ran"] is True

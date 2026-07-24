@@ -313,6 +313,7 @@ class GuardExClient:
         categories: List[str] | None = None,
         pii_entities: List[str] | None = None,
         pii_threshold: float = 0.7,
+        pii_custom_regex: Dict[str, str] | None = None,
         scope_topics: List[str] | None = None,
         scope_utterances: Dict[str, List[str]] | None = None,
         scope_examples: List[str] | None = None,
@@ -343,6 +344,7 @@ class GuardExClient:
             text=text, stage=stage, pii_action=pii_action,
             pii_threshold=pii_threshold, cascade_mode=cascade_mode,
             audit_log=audit_log, categories=categories, pii_entities=pii_entities,
+            pii_custom_regex=pii_custom_regex,
             scope_topics=scope_topics, scope_utterances=scope_utterances,
             scope_examples=scope_examples, scope_width=scope_width,
             scope_threshold=scope_threshold, scope_alpha=scope_alpha,
@@ -401,6 +403,7 @@ class GuardExClient:
         categories: List[str] | None = None,
         pii_entities: List[str] | None = None,
         pii_threshold: float = 0.7,
+        pii_custom_regex: Dict[str, str] | None = None,
         cascade_mode: str = "safety",
         extra_headers: Dict[str, str] | None = None,
     ) -> List[Dict[str, Any]]:
@@ -423,6 +426,7 @@ class GuardExClient:
             texts=texts, stage=stage, pii_action=pii_action,
             pii_threshold=pii_threshold, cascade_mode=cascade_mode,
             categories=categories, pii_entities=pii_entities,
+            pii_custom_regex=pii_custom_regex,
         )
 
         from .exceptions import GuardExAPIError
@@ -443,7 +447,9 @@ class GuardExClient:
                     r, _ = self.screen(
                         text=t, stage=stage, pii_action=pii_action,
                         categories=categories, pii_entities=pii_entities,
-                        pii_threshold=pii_threshold, cascade_mode=cascade_mode,
+                        pii_threshold=pii_threshold,
+                        pii_custom_regex=pii_custom_regex,
+                        cascade_mode=cascade_mode,
                         extra_headers=extra_headers,
                     )
                     results.append(r)
@@ -458,7 +464,9 @@ class GuardExClient:
                 r, _ = self.screen(
                     text=t, stage=stage, pii_action=pii_action,
                     categories=categories, pii_entities=pii_entities,
-                    pii_threshold=pii_threshold, cascade_mode=cascade_mode,
+                    pii_threshold=pii_threshold,
+                    pii_custom_regex=pii_custom_regex,
+                    cascade_mode=cascade_mode,
                     extra_headers=extra_headers,
                 )
                 results.append(r)

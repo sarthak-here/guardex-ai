@@ -6,10 +6,9 @@
 
 <p align="center">
   <a href="https://pypi.org/project/guardex-ai/"><img src="https://img.shields.io/pypi/v/guardex-ai?color=blue" alt="PyPI"></a>
-  <a href="https://pypi.org/project/guardex-ai/"><img src="https://img.shields.io/pypi/dm/guardex-ai?label=downloads%2Fmonth" alt="Downloads"></a>
   <a href="https://pypi.org/project/guardex-ai/"><img src="https://img.shields.io/pypi/pyversions/guardex-ai" alt="Python"></a>
-  <a href="https://github.com/atliq/guardex-ai/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/atliq/guardex-ai/ci.yml?label=CI" alt="CI"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-green" alt="License"></a>
+  <a href="https://github.com/atliq/guardex-ai/actions"><img src="https://img.shields.io/github/actions/workflow/status/atliq/guardex-ai/ci.yml?label=CI" alt="CI"></a>
+  <a href="https://github.com/atliq/guardex-ai?tab=Apache-2.0-1-ov-file"><img src="https://img.shields.io/badge/license-Apache%202.0-green" alt="License"></a>
 </p>
 
 GuardEx is a Python SDK that screens LLM inputs and outputs for unsafe content, PII, prompt injection, and optional grounding checks. Everything runs in-process, with no external API. It drops in front of any LLM call in about ten lines of code.
@@ -148,7 +147,7 @@ its template. See [configuration.md](docs/guides/configuration.md) for both.
 
 Need domain-specific PII entities (medical record numbers, employee IDs)?
 `GuardExPolicy(pii_custom_regex={...})` adds your own label → regex rules,
-local mode only. See [PII Detection: Custom Regex Patterns](docs/guides/pii-detection.md#custom-regex-patterns).
+in local and server mode. See [PII Detection: Custom Regex Patterns](docs/guides/pii-detection.md#custom-regex-patterns).
 
 ---
 
@@ -263,10 +262,18 @@ mode). Pass either one and the SDK instead talks HTTP to a GuardEx server:
 guard = Guard(base_url="http://your-host:8001")   # your self-hosted server
 ```
 
-The client, transport, and `POST /v1/screen` protocol are included. A server
-implementation is not; point `base_url` at a GuardEx-compatible endpoint you
-run. Pass `api_key=` only if your deployment puts auth in front of that
-endpoint; there is no GuardEx-hosted service.
+A reference server ships with the SDK - the same local pipeline behind
+FastAPI:
+
+```bash
+pip install 'guardex-ai[local,server]'
+guardex-server --host 0.0.0.0 --port 8001
+```
+
+Models load at startup; the server accepts traffic once the pipeline is
+warm. It has no built-in auth: run it on a private network or front it with
+your own auth proxy. Pass `api_key=` only if your deployment puts auth in
+front of the endpoint; there is no GuardEx-hosted service.
 
 ---
 
@@ -331,7 +338,7 @@ export GUARDEX_ONNX_USE_GPU=1               # CUDA for ONNX classifier
 - Image, audio, or video moderation
 - Role / permission models (no built-in RBAC)
 - Cross-lingual safety classification (English-only patterns)
-- A managed cloud service (everything is in-process; bring your own infra)
+- A managed cloud service (run in-process or self-host the reference server)
 - Real-time policy hot-reload from a remote store (use YAML + restart)
 
 ---

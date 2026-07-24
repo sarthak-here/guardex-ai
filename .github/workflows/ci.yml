@@ -37,7 +37,7 @@ jobs:
           cache: pip
 
       - name: Install SDK (dev + local + integration extras)
-        run: pip install -e ".[dev,local,langchain,otel]"
+        run: pip install -e ".[dev,local,langchain,otel,server]"
 
       - name: Lint with ruff
         run: ruff check guardex/ tests/

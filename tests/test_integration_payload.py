@@ -90,6 +90,58 @@ def test_screen_request_omits_auth_header_when_no_api_key():
 
 
 @respx.mock(base_url="http://localhost:8001")
+def test_screen_request_includes_custom_regex(
+    respx_mock: respx.MockRouter,
+) -> None:
+    """A policy with pii_custom_regex must send the patterns to the server."""
+    from guardex.policy import GuardExPolicy
+
+    route = respx_mock.post("/v1/screen").respond(json=SAFE_SCREEN_RESPONSE)
+
+    policy = GuardExPolicy(
+        api_key="gx_test_abc123",
+        base_url="http://localhost:8001",
+        pii_custom_regex={"employee_id": r"EMP-\d{6}"},
+    )
+    g = Guard(policy=policy)
+    try:
+        g.screen("employee EMP-123456", gate="input")
+    finally:
+        g.close()
+
+    body = json.loads(route.calls[-1].request.content)
+    assert body["pii_custom_regex"] == {"employee_id": r"EMP-\d{6}"}
+
+
+@respx.mock(base_url="http://localhost:8001")
+def test_screen_batch_request_includes_custom_regex(
+    respx_mock: respx.MockRouter,
+) -> None:
+    """A policy with pii_custom_regex must send the patterns on every batch item."""
+    from guardex.policy import GuardExPolicy
+
+    route = respx_mock.post("/v1/screen/batch").respond(
+        json={"results": [SAFE_SCREEN_RESPONSE, SAFE_SCREEN_RESPONSE]}
+    )
+
+    policy = GuardExPolicy(
+        api_key="gx_test_abc123",
+        base_url="http://localhost:8001",
+        pii_custom_regex={"employee_id": r"EMP-\d{6}"},
+    )
+    g = Guard(policy=policy)
+    try:
+        g.screen_batch(["employee EMP-123456", "hello"], gate="input")
+    finally:
+        g.close()
+
+    body = json.loads(route.calls[-1].request.content)
+    assert len(body["requests"]) == 2
+    for item in body["requests"]:
+        assert item["pii_custom_regex"] == {"employee_id": r"EMP-\d{6}"}
+
+
+@respx.mock(base_url="http://localhost:8001")
 def test_screen_response_with_pii_parses_entities_correctly(
     respx_mock: respx.MockRouter, guard: Guard
 ) -> None:

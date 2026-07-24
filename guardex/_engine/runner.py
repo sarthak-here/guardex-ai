@@ -17,6 +17,7 @@ import asyncio
 import logging
 import threading
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any, List, Literal, Optional
 
 logger = logging.getLogger(__name__)
@@ -264,12 +265,13 @@ class LocalRunner:
 
         def _trace(gate_name: str, ran: bool, t0: float,
                    skipped_reason: Optional[str] = None,
-                   blocked: bool = False, note: Optional[str] = None) -> None:
+                   blocked: bool = False, note: Optional[str] = None,
+                   ended: Optional[float] = None) -> None:
             diagnostics.append({
                 "gate": gate_name,
                 "ran": ran,
                 "skipped_reason": skipped_reason,
-                "duration_ms": (_time.perf_counter() - t0) * 1000,
+                "duration_ms": ((ended if ended is not None else _time.perf_counter()) - t0) * 1000,
                 "blocked": blocked,
                 "note": note,
             })
@@ -330,37 +332,55 @@ class LocalRunner:
 
             normalized = normalize_for_classification(text)
 
-            # Step 4 - Safety classification
-            t0 = _time.perf_counter()
-            clf = self._classify_raw(normalized, stage=stage, categories=categories, cascade_mode=cascade_mode)
-            _trace("classify", True, t0,
-                   blocked=(not clf.get("safe", True)),
-                   note=clf.get("category"))
-
-            # Step 5 - PII detection / masking
-            # Mask whenever PII action is "mask" or "block" so the parser has a
-            # masked_text to surface in either path.  "none" skips PII entirely.
-            # PII detection sees the normalized text too so homoglyph
-            # PII (e.g. Cyrillic 'a' in an email) doesn't slip past GLiNER
-            # the way it would slip past the safety classifier.
+            # Steps 4+5 - Safety classification and PII detection are
+            # independent (neither consumes the other's output), so they run
+            # concurrently: classify inference happens on the worker event
+            # loop while PII (GLiNER + regex) runs on the calling thread.
+            # The spawned thread only waits on the classify future, so both
+            # models keep their usual threads.  Per-gate duration_ms values
+            # overlap and may sum to more than total wall time.
+            #
+            # PII masks whenever the action is "mask" or "block" so the parser
+            # has a masked_text to surface in either path.  "none" skips PII
+            # entirely.  PII detection sees the normalized text too so
+            # homoglyph PII (e.g. Cyrillic 'a' in an email) doesn't slip past
+            # GLiNER the way it would slip past the safety classifier.
             do_pii = pii_action != "none"
             pii: dict[str, Any]
             t0 = _time.perf_counter()
             if do_pii:
-                pii = self._pii_raw(
-                    normalized,
-                    entities=pii_entities,
-                    threshold=pii_threshold,
-                    mask=(pii_action in ("mask", "block")),
-                    deny_list=pii_deny_list,
-                    allow_list=pii_allow_list,
-                    custom_regex=pii_custom_regex,
-                    custom_context_keywords=pii_custom_context_keywords,
-                )
+                with ThreadPoolExecutor(
+                    max_workers=1, thread_name_prefix="guardex-classify"
+                ) as pool:
+                    clf_future = pool.submit(
+                        self._classify_raw, normalized, stage=stage,
+                        categories=categories, cascade_mode=cascade_mode,
+                    )
+                    pii = self._pii_raw(
+                        normalized,
+                        entities=pii_entities,
+                        threshold=pii_threshold,
+                        mask=(pii_action in ("mask", "block")),
+                        deny_list=pii_deny_list,
+                        allow_list=pii_allow_list,
+                        custom_regex=pii_custom_regex,
+                        custom_context_keywords=pii_custom_context_keywords,
+                    )
+                    pii_ended = _time.perf_counter()
+                    clf = clf_future.result()
+                _trace("classify", True, t0,
+                       blocked=(not clf.get("safe", True)),
+                       note=clf.get("category"))
                 _trace("pii", True, t0,
                        blocked=(pii.get("has_pii", False) and pii_action == "block"),
-                       note=f"{len(pii.get('entities') or [])} entities")
+                       note=f"{len(pii.get('entities') or [])} entities",
+                       ended=pii_ended)
             else:
+                clf = self._classify_raw(normalized, stage=stage, categories=categories, cascade_mode=cascade_mode)
+                _trace("classify", True, t0,
+                       blocked=(not clf.get("safe", True)),
+                       note=clf.get("category"))
+                t0 = _time.perf_counter()
                 pii = {"has_pii": False, "entities": [], "masked_text": None}
                 _trace("pii", False, t0, skipped_reason="pii_action='none'")
 
@@ -452,6 +472,7 @@ class LocalRunner:
         categories: Optional[List[str]] = None,
         pii_entities: Optional[List[str]] = None,
         pii_threshold: float = 0.7,
+        pii_custom_regex: Optional[dict[str, str]] = None,
         cascade_mode: str = "safety",
         extra_headers: Optional[dict[str, str]] = None,
     ) -> List[dict[str, Any]]:
@@ -467,6 +488,7 @@ class LocalRunner:
                 categories=categories,
                 pii_entities=pii_entities,
                 pii_threshold=pii_threshold,
+                pii_custom_regex=pii_custom_regex,
                 cascade_mode=cascade_mode,
             )
             results.append(raw)
