@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/atliq/guardex-ai/main/docs/assets/logo.png" alt="GuardEx" width="440">
+  <img src="https://raw.githubusercontent.com/atliq/guardex-ai/main/docs/assets/guardex.jpeg" alt="GuardEx" width="440">
 </p>
 
 # GuardEx: AI Guardrails
